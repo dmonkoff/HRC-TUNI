@@ -1,0 +1,63 @@
+poses:
+    start_pose: [0.4723756949054163, -1.958526913319723, 1.767725944519043, -1.3837721983539026, -1.5690739790545862,
+                        -0.47404700914491826]
+    calib_pose_side: [-0.3096678892718714, -1.516897980366842, 1.667759895324707, -1.7024710814105433, 1.5452834367752075,
+                        1.821515679359436]
+    calib_pose_up: [-1.7597149054156702, -2.4198129812823694, 2.1451210975646973, -2.823352638875143, 0.18592926859855652,
+         4.638876914978027]
+    phone_detect_start_pose: [1.7525787353515625, -1.848661247883932, -0.3250969091998499, -1.4826796690570276,
+    -1.5671675840960901, -0.3365686575519007]
+object_offstes:
+    x: 0.057
+    y: 0.112
+gripper_grasp_config:
+    z: -0.16
+cartesian_waypoints:
+    waypoint_0: [-0.234, -0.243, 0.475]
+    waypoint_1: [-0.567,  0.337, 0.411]
+    waypoint_2: [-0.566,  0.338, 0.190]
+zero_point:
+    x: 846
+    y: 597
+ROI:
+  upleft:
+    x: 320
+    y: 341
+  downright:
+    x: 1250
+    y: 903
+safety_area:
+    x: 210
+    y: -10
+    a: 0
+interaction_ball:
+    x: 614
+    y: 267
+# points are in (X,Y)
+safe_line_end_points:
+    p1: [736,128]
+    p2: [736,1002]
+    x_clip_min: 240
+    x_clip_max: 241
+    interrupt_threshold: 2
+interaction_button_thres: 0.23
+nearest_object_threshold: 0.33
+treshold_p1p2: 0.0008
+dynamic_workspace_size: 0.25
+safety_area_offset: 0.02
+work_object_width: 0.24
+# cropbox and tcp_projection_clip should have same values !!!!
+# cropbox for tcp_projection
+tcp_projection_clip:
+    p_max: [0.50, 0.42]
+    p_min: [-0.46, -0.75]
+
+
+# coordinates for the cropbox (kinect_frame)
+# p_max: [0.280001, 0.510001, 2.3]
+# p_min: [-0.48, -0.81, 0.979999]
+cropbox:
+    p_max: [0.1, 0.54, 0.9]
+    p_min: [-0.69, -0.54, -0.05]
+
+plane_coefficients: [-0.0825811, -0.0563098, 0.994992, -1.64275]

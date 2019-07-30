@@ -1,0 +1,19 @@
+# remember to check positions w.r.t correct end effector e.g. rosrun tf tf_echo /base /robotiq_85_base_link
+# orientation for bringing back the object 0.708, -0.002, -0.707, -0.001 (also works [-0.704, -0.001, 0.710, -0.001] )
+# orientation pick point: -0.501, 0.499, 0.501, 0.499 (Also works -0.506, 0.494, 0.510, 0.489)
+cranfield:
+  crasp:
+   close: 0.04
+   open: 0.09
+  start_pose:
+   position: [-392.95, -19.53, 250.91]
+   orientation: [-0.704, -0.001, 0.710, -0.001]
+  pick_point_back:
+   position: [-113.63, 380.17, 300.40] # single one pick depth 179
+   orientation: [-0.501, 0.499, 0.501, 0.499]
+  pick_point_front:
+   position: [-339.96, 376.57, 300.40] # single one pick depth 179
+   orientation: [-0.501, 0.499, 0.501, 0.499]
+  drop_point:
+   position: [-500.45, -321.54, 300.10] # single one pick depth 179
+   orientation: [0.708, -0.002, -0.707, -0.001]
