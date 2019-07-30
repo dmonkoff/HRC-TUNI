@@ -4,8 +4,8 @@
 
 
 ## Description
-This is a collection of tools and libraries for a ROS Interface to the Kinect One (Kinect v2).
-It contains:
+This repository contains libraries and tools for a depth-sensor based model for workspace monitoring and an interactive Augmented Reality (AR) User Interface (UI) for safe HRC. The AR UI is implemented on two different hardware: a projector-mirror setup and a wearable AR gear (HoloLens). 
+The repository contains:
 - [a projection-based user interface](kinect2_calibration)
 - [a head-mounted AR (Hololens) user interface](kinect2_registration) Head-mounted AR display (Hololens) 
 - [a depth-based safety system](kinect2_bridge) a depth-based model for ensuring safe human-robot collaboration
@@ -30,7 +30,14 @@ It contains:
     catkin_make -DCMAKE_BUILD_TYPE="Release"
     ```
 ## Citation
-If you use our work, please cite it.
+This is the reference implementation for the paper:
+
+**_AR-based interaction for human-robot collaborative manufacturing_** _A. Hietanen, R. Pieters, M. Lanz, J. Latokartano, J.-K. Kämäräinen_ 
+
+[PDF](https://arxiv.org/pdf/1803.09956.pdf) | [Video](http://vpg.cs.princeton.edu/)
+
+
+If you find this code useful in your work, please consider citing:
 ```tex
 @article{hietanen2019RCIM,
   title={AR-based interaction for human-robot collaborative manufacturing},
