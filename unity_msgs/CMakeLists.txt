@@ -52,6 +52,7 @@ add_message_files(
    MarkerData.msg
    MarkerDataArray.msg
    ManipulatedObject.msg
+   NearestObject.msg
 )
 
 ## Generate services in the 'srv' folder

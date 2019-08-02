@@ -2,19 +2,36 @@ cmake_minimum_required(VERSION 2.8.3)
 project(safety_model)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
+
+set(utility_path ${CMAKE_CURRENT_SOURCE_DIR}/utils/)
+set(SENSOR_HEADERS ${utility_path}sensor/include/)
+set(SENSOR_SOURCES  ${utility_path}sensor/)
+set(PCL_UTIL_HEADER ${utility_path}pcl/include/)
+set(ROS_UTIL_SOURCE ${utility_path}ros/)
+set(ROS_UTIL_HEADER ${utility_path}ros/include/)
+set(COMMON_HELPERS_HEADERS ${utility_path}common/include/)
+set(OPENCV_UTILS_HEADER ${utility_path}opencv/include/)
+set(OPENCV_UTILS_SOURCE ${utility_path}opencv/)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  compressed_image_transport
+  cv_bridge
   roscpp
   rospy
   std_msgs
+  message_generation
+  image_transport
+  tf
+  tf2
+  unity_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(PCL REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -116,8 +133,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  ${PCL_UTIL_HEADER}
+  ${SENSOR_HEADERS}
+  ${ROS_UTIL_HEADER}
+  ${COMMON_HELPERS_HEADERS}
 )
 
 ## Declare a C++ library
@@ -133,7 +155,18 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/safety_model_node.cpp)
+add_executable(${PROJECT_NAME}_detector
+        src/main.cpp
+        ${ROS_UTIL_SOURCE}ros_utils.cpp
+        src/ros_detector.cpp
+        src/safety_map.cpp
+        src/ur5_kinematics.cpp
+        src/filter.cpp
+        src/work_object.cpp
+        src/cluster.cpp
+        ${SENSOR_SOURCES}depth_camera.cpp
+        ${SENSOR_SOURCES}sensor.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -143,7 +176,12 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_detector
+#     ${ROS_LIBRARIES}
+	${catkin_LIBRARIES}
+	${PCL_LIBRARIES}
+)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
