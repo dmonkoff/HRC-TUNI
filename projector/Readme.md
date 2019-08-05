@@ -11,15 +11,15 @@ To replicate the research work a standard 3LCD projector must be installed above
 
 Currently the module contains the following example UI components:
 - a dynamic danger zone isolating the robot and the manipulated object
-- _GO_ and _STOP_ button to start and stop the robot
+- _GO_ and _STOP_ button to start and stop the robot, respectively
 - _CONFIRM_ button to verify and add changed regions to the current model
 - _ENABLE_ button that needs to be pressed simultaneously with the _GO_ and _CONFIRM_ buttons to take effect
 - a graphical display box (image and text) to show the robot status and instructions to the operator
 
 ## Configuration
-The module contains example configurations for the UI components (see _unity_msgs_ folder). In addition to succesfully use the module in a real environment the homography matrix between image plane and the work table must be estimated. 
+The module contains example configurations for the UI components (see _unity_msgs_ folder). In addition to succesfully use the module in a real environment the [homography matrix](https://docs.opencv.org/master/d9/dab/tutorial_homography.html) between image plane and the work table must be estimated. 
 
-## Run the module
+## Running the module
 1: Start the robot driver: ```roslaunch ur_modern_driver ur5_bringup.launch robot_ip:=<real robot 192.168.125.100 or simulated 127.0.0.1>```
 
 2: Start the camera driver: ```roslaunch kinect2_bridge kinect2_bridge.launch max_depth:=<max depth in meters>```
