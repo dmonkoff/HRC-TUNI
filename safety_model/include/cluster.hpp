@@ -1,7 +1,3 @@
-//
-// Created by antti on 25.7.2018.
-//
-
 #ifndef PROJECT_CLUSTER_HPP
 #define PROJECT_CLUSTER_HPP
 

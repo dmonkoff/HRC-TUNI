@@ -86,56 +86,15 @@ void ROSDetector::cb_joint_state(const sensor_msgs::JointStateConstPtr& msg)
     joint_stamp_ = msg->header.stamp;
     joint_lock_.unlock();
 }
-/*
-void ROSDetector::check_work_objects(std::vector<double> joint_values)
-{
-    std::vector<double> tcp;
-    std::vector<std::vector<double> > tool_reference_frame;
-    ur5_kin_->forward_kinematics(joint_values, tcp); // tool0 endpoint
-    ur5_kin_->get_tf(joint_values, "robotiq_85_gripper", tool_reference_frame);
-    Vec3 tcp_vec;
-    tcp_vec.x = tcp[0];
-    tcp_vec.y = tcp[1];
-    tcp_vec.z = tcp[2];
-    for (size_t i = 0; i < work_objects_.size(); ++i) {
-        work_objects_[i]->set_reference_frame(tool_reference_frame);
-        double dist = pcl_utils::euclidean_distance<Vec3,WorkObject::Vec3>(tcp_vec, work_objects_[i]->get_pick_locations());
-        if ( dist < 0.01 ) {
-            work_objects_[i]->set_manipulated(true);
-        }
-        dist = pcl_utils::euclidean_distance<Vec3,WorkObject::Vec3>(tcp_vec, work_objects_[i]->get_drop_locations());
-        if ( dist < 0.01 ) {
-            work_objects_[i]->set_manipulated(false);
-        }
-    }
-}
-*/
+
 
 void ROSDetector::get_workobject_controlpoints(std::vector<double> joint_values,
                                                std::vector<std::vector<double> > & control_points)
 {
     std::vector<double> tcp;
     std::vector<std::vector<double> > tool_reference_frame;
-
-    // ur5_kin_->forward_kinematics(joint_values, tcp); // tool0 endpoint
     ur5_kin_->get_tf(joint_values, "onrobot_rg2", tool_reference_frame);
     work_objects_[0]->get_control_points(control_points, tool_reference_frame);
-    /*Vec3 tcp_vec;
-    tcp_vec.x = tcp[0];
-    tcp_vec.y = tcp[1];
-    tcp_vec.z = tcp[2];
-    for (size_t i = 0; i < work_objects_.size(); ++i) {
-        work_objects_[i]->set_reference_frame(tool_reference_frame);
-        double dist = pcl_utils::euclidean_distance<Vec3,WorkObject::Vec3>(tcp_vec, work_objects_[i]->get_pick_locations());
-        if ( dist < 0.01 ) {
-            work_objects_[i]->set_manipulated(true);
-        }
-        dist = pcl_utils::euclidean_distance<Vec3,WorkObject::Vec3>(tcp_vec, work_objects_[i]->get_drop_locations());
-        if ( dist < 0.01 ) {
-            work_objects_[i]->set_manipulated(false);
-        }
-    }*/
-    int x = 5;
 }
 
 
@@ -245,9 +204,8 @@ void ROSDetector::publish_clusters(int n_anomalies)
 
 
 
-void ROSDetector::visualize_state(const std::vector<pcl::PointIndices> & inliers) {
-
-    /// VIZ only //////////////////////////////////////////////////////////// REMOVE AFTER
+void ROSDetector::visualize_state(const std::vector<pcl::PointIndices> & inliers)
+{
     filtered_cloud_ = pcl_utils::copy_cloud<PointL>(filtered_cloud_, inliers, D_WIDTH, D_HEIGHT);
     anomalies_cloud_->header.frame_id = "base";
     filtered_cloud_->header.frame_id = "base";
@@ -262,12 +220,9 @@ void ROSDetector::initialize()
 {
 
     std::vector<double> cropbox = {-1.0, -1.0, -0.1, 0.4, 1.0, 1.0};
-    // nh_priv_.param("method", params_.method, 1);
     nh_priv_.param("cloud_diff_threshold", params_.cloud_diff_threshold, 0.02f);
     nh_priv_.param("cluster_tolerance", params_.cluster_tolerance, 0.008f);
     nh_priv_.param("min_cluster_size", params_.min_cluster_size, 250);
-    // nh_priv_.param("robot_zone_rad", params_.robot_zone_rad, 0.01f);
-    // nh_priv_.param("safety_zone_rad", params_.safety_zone_rad, 0.0225f); // 0.15*0.15
     nh_priv_.param("safety_map_scale", params_.map_2D_scale, 100);
     nh_priv_.param("anomalies_threshold", params_.anomalies_threshold, 10);
     nh_priv_.param("visualize", params_.viz, true);
@@ -282,40 +237,12 @@ void ROSDetector::initialize()
     nh_.param("interaction_button_thres", params_.interaction_button_threshold, 0.023);
 
 
-    /// read task related objects
-    /*
-    std::map<std::string,double> map_s;
-    std::map<std::string,double>::iterator it = map_s.begin();
-    for (; it != map_s.end(); ++it) {
-        std::cout << it->first << std::endl;
-        std::cout << it->second << std::endl;
-
-
-    }
-    */
 
     float width, height;
-    int type = 1;
-    /*nh_priv_.getParam("/hololens_detector/work_objects/rocker_shaft/heighth", heighth);
-    nh_priv_.getParam("/hololens_detector/work_objects/rocker_shaft/type", type);
-    nh_priv_.getParam("/hololens_detector/work_objects/rocker_shaft/width", width);*/
     nh_.getParam("work_object_width", width);
     WorkObject * workObject = new WorkObject;
     workObject->set_control_point(width, height, CYLINDER);
     work_objects_.push_back(workObject);
-
-
-    /*
-    WorkObject::Vec3 locs;
-    locs.x = -0.358155;
-    locs.y = 0.271908;
-    locs.z = 0.2024155;
-    work_objects_[0]->set_pick_location(locs);
-    locs.x = -0.435;
-    locs.y = -0.013;
-    locs.z = 0.213;
-    work_objects_[0]->set_drop_location(locs);
-    */
 
 
     std::vector<geometry_msgs::TransformStamped> link;
@@ -327,9 +254,8 @@ void ROSDetector::initialize()
         for ( double x : v ) std::cout << x << ' ';
         std::cout << std::endl;
     }
-    // asdad
+
     ROS_INFO_STREAM("########################################");
-    // ROS_INFO_STREAM("Method: " << params_.method);
     ROS_INFO_STREAM("Cloud difference threshold: " << params_.cloud_diff_threshold);
     ROS_INFO_STREAM("Cluster tolerance: " << params_.cluster_tolerance);
     ROS_INFO_STREAM("Minimum cluster size: " << params_.min_cluster_size);
@@ -340,6 +266,4 @@ void ROSDetector::initialize()
     ROS_INFO("Cropbox: min(x,y,z) max(x,y,z): (%f,%f,%f) (%f,%f,%f)", cropbox[0],cropbox[1],cropbox[2],
              cropbox[3],cropbox[4],cropbox[5]);
     ROS_INFO_STREAM("########################################");
-
-
 }

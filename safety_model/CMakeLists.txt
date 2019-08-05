@@ -161,8 +161,8 @@ add_executable(${PROJECT_NAME}_detector
         src/ros_detector.cpp
         src/safety_map.cpp
         src/ur5_kinematics.cpp
+		src/work_object.cpp
         src/filter.cpp
-        src/work_object.cpp
         src/cluster.cpp
         ${SENSOR_SOURCES}depth_camera.cpp
         ${SENSOR_SOURCES}sensor.cpp

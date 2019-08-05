@@ -89,16 +89,6 @@ std::vector<std::vector<double> > Ur5Kinematics::DH(double a, double d, double a
     return dh_;
 }
 
-void printT(std::vector<std::vector<double> > T)
-{
-    for (size_t i = 0; i < 4; ++i)
-    {
-        for (size_t j = 0; j < 4; ++j)
-            std::cout << T[i][j] << " ";
-        std::cout << std::endl;
-    }
-}
-
 std::vector<std::vector<double> > Ur5Kinematics::vector_multiplication(std::vector<std::vector<double> > v1,
                                                                        std::vector<std::vector<double> > v2)
 {
@@ -112,26 +102,6 @@ std::vector<std::vector<double> > Ur5Kinematics::vector_multiplication(std::vect
     return output;
 }
 
-void Ur5Kinematics::forward_kinematics(const std::vector<double> joint_vals, std::vector<double> & output) {
-
-    if (!valid_input(joint_vals))
-        return;
-
-    std::vector<std::vector<double> > T01 = DH(as_[0], ds_[0], alphas_[0], joint_vals[0]);
-    std::vector<std::vector<double> > T12 = DH(as_[1], ds_[1], alphas_[1], joint_vals[1]);
-    std::vector<std::vector<double> > T23 = DH(as_[2], ds_[2], alphas_[2], joint_vals[2]);
-    std::vector<std::vector<double> > T34 = DH(as_[3], ds_[3], alphas_[3], joint_vals[3]);
-    std::vector<std::vector<double> > T45 = DH(as_[4], ds_[4], alphas_[4], joint_vals[4]);
-    std::vector<std::vector<double> > T56 = DH(as_[5], ds_[5], alphas_[5], joint_vals[5]);
-    // printT(T01);
-    std::vector<std::vector<double> > T02 =  vector_multiplication(T01,T12);
-    std::vector<std::vector<double> > T03 =  vector_multiplication(T02,T23);
-    std::vector<std::vector<double> > T04 =  vector_multiplication(T03,T34);
-    std::vector<std::vector<double> > T05 =  vector_multiplication(T04,T45);
-    std::vector<std::vector<double> > T06 =  vector_multiplication(T05,T56);
-    output = get_translation(T06);
-}
-
 std::vector<double> Ur5Kinematics::get_translation(std::vector<std::vector<double> > T) {
     std::vector<double> output;
     output.resize(3);
@@ -139,34 +109,6 @@ std::vector<double> Ur5Kinematics::get_translation(std::vector<std::vector<doubl
     output[1] = T[1][3];
     output[2] = T[2][3];
     return output;
-}
-
-void Ur5Kinematics::get_links_XYZ(std::vector<double> joint_vals,
-                                  std::vector<std::vector<double> >& output) {
-
-    if (!valid_input(joint_vals))
-        return;
-
-
-        output.resize(6, std::vector<double>(3));
-        std::vector<std::vector<double> > T01 = DH(as_[0], ds_[0], alphas_[0], joint_vals[0]);
-        std::vector<std::vector<double> > T12 = DH(as_[1], ds_[1], alphas_[1], joint_vals[1]);
-        std::vector<std::vector<double> > T23 = DH(as_[2], ds_[2], alphas_[2], joint_vals[2]);
-        std::vector<std::vector<double> > T34 = DH(as_[3], ds_[3], alphas_[3], joint_vals[3]);
-        std::vector<std::vector<double> > T45 = DH(as_[4], ds_[4], alphas_[4], joint_vals[4]);
-        std::vector<std::vector<double> > T56 = DH(as_[5], ds_[5], alphas_[5], joint_vals[5]);
-        std::vector<std::vector<double> > T02 = vector_multiplication(T01, T12);
-        std::vector<std::vector<double> > T03 = vector_multiplication(T02, T23);
-        std::vector<std::vector<double> > T04 = vector_multiplication(T03, T34);
-        std::vector<std::vector<double> > T05 = vector_multiplication(T04, T45);
-        std::vector<std::vector<double> > T06 = vector_multiplication(T05, T56);
-
-        output[0] = this->get_translation(T01);
-        output[1] = this->get_translation(T02);
-        output[2] = this->get_translation(T03);
-        output[3] = this->get_translation(T04);
-        output[4] = this->get_translation(T05);
-        output[5] = this->get_translation(T06);
 }
 
 void Ur5Kinematics::get_links_XYZ_corrected(const std::vector<double> & joint_vals,

@@ -1,7 +1,3 @@
-//
-// Created by antti on 23.5.2018.
-//
-
 #ifndef PROJECT_TYPES_HPP
 #define PROJECT_TYPES_HPP
 

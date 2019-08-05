@@ -1,22 +1,13 @@
-//
-// Created by antti on 23.5.2018.
-//
-
 #ifndef PROJECT_FILTER_HPP
 #define PROJECT_FILTER_HPP
+#include "work_object.hpp"
 #include "cluster.hpp"
 #include "safety_map.hpp"
-#include "depth_camera.hpp"
-#include "pcl_utils.hpp"
-#include "types.hpp"
-#include "work_object.hpp"
-
 #include <pcl/segmentation/extract_clusters.h>
 
 namespace filter
 {
 
-/// Using 2D maps
 void filter_organized_cloud(const cv::Mat &depth, const cv::Mat &color, std::vector<int> & cluster_idx,
                                     pcl::PointCloud<PointL>::Ptr &cloud, const DepthCamera * cam,
                                     const MatrixDouble sensor_to_base, const MatrixDouble link_locations, SafetyMap * sm,

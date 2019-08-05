@@ -1,7 +1,3 @@
-//
-// Created by antti on 23.5.2018.
-//
-
 #ifndef PROJECT_ROS_DETECTOR_HPP
 #define PROJECT_ROS_DETECTOR_HPP
 
@@ -9,22 +5,17 @@
 #include "safety_map.hpp"
 #include "work_object.hpp"
 #include "ur5_kinematics.hpp"
-#include "unity_msgs/NearestObject.h"
-#include <unity_msgs/ManipulatedObject.h>
-#include <pcl/common/transforms.h>
 #include "filter.hpp"
-#include "unity_msgs/MarkerDataArray.h"
 
-
-// ROS msg
-// #include "std_msgs/Float64MultiArray.h"
-// #include "std_msgs/MultiArrayDimension.h"
+#include <pcl/common/transforms.h>
 #include <std_msgs/String.h>
 #include <pcl_ros/point_cloud.h>
 #include <sensor_msgs/JointState.h>
+#include "unity_msgs/NearestObject.h"
+#include <unity_msgs/ManipulatedObject.h>
+#include "unity_msgs/MarkerDataArray.h"
 
 struct DetectorParams {
-    int method;
     bool viz;
     bool lookup_initialized;
     float cloud_diff_threshold;
@@ -35,20 +26,12 @@ struct DetectorParams {
     float safety_zone_rad;
     int anomalies_threshold;
     int map_2D_scale;
-    double nearest_object_threshold;
     MatrixDouble sensor_to_base_;
 };
 
 
 class ROSDetector
 {
-    struct Vec3
-    {
-        double x;
-        double y;
-        double z;
-    };
-
 
 
   public:
@@ -98,8 +81,8 @@ class ROSDetector
     Cluster * nearest_object_;
 
     std::vector<WorkObject*> work_objects_;
-    std::vector<double> joint_positions_; // = msg->position;
-    ros::Time joint_stamp_;// = msg->header.stamp;
+    std::vector<double> joint_positions_;
+    ros::Time joint_stamp_;
     boost::mutex joint_lock_;
     bool robot_carrying_object_;
     std::string safety_mode_;

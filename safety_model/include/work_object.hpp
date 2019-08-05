@@ -1,7 +1,3 @@
-//
-// Created by antti on 8.6.2018.
-//
-
 #ifndef PROJECT_WORK_OBJECT_HPP
 #define PROJECT_WORK_OBJECT_HPP
 #include <iostream>
@@ -26,16 +22,8 @@ public:
 
     WorkObject();
     ~WorkObject();
-    void set_reference_frame(WorkObject::DoubleMatrix & reference);
     void get_control_points(std::vector<std::vector<double>> & control_points, WorkObject::DoubleMatrix & reference_frame);
-    WorkObject::Vec3 get_pick_locations();
-    WorkObject::Vec3 get_drop_locations();
     void set_control_point(float width, float height, int type);
-    void set_manipulated(bool manipulated);
-    bool get_manipulated();
-    void set_pick_location(WorkObject::Vec3 loc);
-    void set_drop_location(WorkObject::Vec3 loc);
-    bool point_inside_object(pcl::PointXYZ * test_p, float squared_radius);
 
 private:
     WorkObject::Vec3 pick_location_;
@@ -43,7 +31,6 @@ private:
     bool manipulated_;
     ObjectType type_;
     std::vector<WorkObject::Vec3> control_points_;
-    DoubleMatrix tool_reference_frame_;
 };
 
 
