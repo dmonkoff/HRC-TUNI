@@ -1,0 +1,50 @@
+CONFIRM:
+  img_path: CONFIRM.png
+  loc:
+  - 887
+  - 454
+DEAD_MAN:
+  img_path: DEAD_MAN.png
+  loc:
+  - 859
+  - 1501
+DM_NOT_PRESSED:
+  img_path: DM_NOT_PRESSED.png
+  loc:
+  - 884
+  - 662
+GO:
+  img_path: GO.png
+  loc:
+  - 881
+  - 300
+GRASP_ARM:
+  img_path: GRASP_ARM.png
+  loc:
+  - 520
+  - 195
+MOTOR_FRAME:
+  img_path: MOTOR_FRAME.png
+  loc:
+  - 540
+  - 195
+ROBOT_ACTIVE:
+  img_path: ROBOT_ACTIVE.png
+  loc:
+  - 884
+  - 667
+ROCKER_SHAFT:
+  img_path: ROCKER_SHAFT.png
+  loc:
+  - 540
+  - 195
+START_ROBOT:
+  img_path: START_ROBOT.png
+  loc:
+  - 883
+  - 662
+STOP:
+  img_path: STOP.png
+  loc:
+  - 878
+  - 145

@@ -51,11 +51,11 @@ class Interface():
         self._components[id] = Pattern(id, texture, location)
 
     def read_config(self, path):
-        with open(path, 'r') as f:
+        with open(path + 'projector_buttons.yaml', 'r') as f:
             data = yaml.safe_load(f)
         keys = data.keys()
         for i in range(len(keys)):
-            self.read_component(keys[i], data[keys[i]]['img_path'], data[keys[i]]['loc'])
+            self.read_component(keys[i], path + data[keys[i]]['img_path'], data[keys[i]]['loc'])
 
     def draw(self, screen, robot_state, button_state, system_state):
         if robot_state == 'moving':
@@ -82,7 +82,7 @@ class Interface():
         return screen
 
 class Projector():
-    def __init__(self, interface_configs_path, common_configs):
+    def __init__(self, interface_configs_path, common_configs, homogprahy_path):
         # self._interaction_sub = rospy.Subscriber("/unity/interaction_markers", MarkerDataArray, cb_interaction_marker)
         self._joint_sub = rospy.Subscriber('joint_states', JointState, self.cb_joint_state)
         self._marker_sub = rospy.Subscriber("/unity/interaction_markers", MarkerDataArray, self.cb_markers_state)
@@ -98,6 +98,7 @@ class Projector():
         self._button_info = None
         self._system_state = None
         self._robot_carrying_object = False
+        self._H = np.loadtxt(homogprahy_path)
         # nearest_object_coords_sub = rospy.Subscriber("/unity/nearest_object", NearestObject, cb_nearest_object_coords)
         # system_mode_sub_ = rospy.Subscriber("/unity/system_mode", String, cb_safety_system_mode)
         self.init(interface_configs_path, common_configs)
@@ -188,12 +189,10 @@ class Projector():
 
 
     def run(self):
-        H = np.loadtxt('/home/antti/work/catkin_ws/src/unity/calibration/data/robot_projector_homography.txt')
         last_check = 0.0
         robot_state = None
         while not rospy.is_shutdown():
             interface_img = np.zeros((1080, 1920, 3), np.uint8)
-
 
             ### Generate interface components
             if time.time() - last_check > 0.3:
@@ -204,16 +203,16 @@ class Projector():
             ### Generate hull
             joint_values = self._current_joint_values.copy()
             c_points = self._robot_kin.get_link_xyz(joint_values)
-            temp1 = self.generate_hull(c_points, H, self._cfg['dynamic_workspace_size'], 2)
-            temp2 = self.generate_hull(c_points, H, self._cfg['dynamic_workspace_size'] + self._cfg['safety_area_offset'], 1)
+            temp1 = self.generate_hull(c_points, self._H, self._cfg['dynamic_workspace_size'], 2)
+            temp2 = self.generate_hull(c_points, self._H, self._cfg['dynamic_workspace_size'] + self._cfg['safety_area_offset'], 1)
             safety_line = temp2-temp1
             interface_img += safety_line
 
             if self._robot_carrying_object:
                 ee_frame = self._robot_kin.fwd_kin(joint_values, gripper="onrobot_rg2")
                 c_points = self.work_object_cpoints(ee_frame)
-                temp1 = self.generate_hull(c_points, H, self._cfg['dynamic_workspace_size'], 2)
-                temp2 = self.generate_hull(c_points, H, self._cfg['dynamic_workspace_size'] + self._cfg['safety_area_offset'], 1)
+                temp1 = self.generate_hull(c_points, self._H, self._cfg['dynamic_workspace_size'], 2)
+                temp2 = self.generate_hull(c_points, self._H, self._cfg['dynamic_workspace_size'] + self._cfg['safety_area_offset'], 1)
                 safety_line = temp2 - temp1
                 interface_img += safety_line
 
@@ -226,10 +225,10 @@ def main():
     rospy.init_node('robot_safety_area_node')
     rospack = rospkg.RosPack()
     config_prefix = rospack.get_path('unity_msgs') + '/configs/'
-    print(config_prefix)
-    interface_config_path = config_prefix + 'mobile_demo/projector_buttons.yaml'
+    interface_config_path = config_prefix + 'mobile_demo/'
     common_config_path = config_prefix + 'config.yaml'
-    proj = Projector(interface_config_path, common_config_path)
+    homography_file = config_prefix + 'robot_projector_homography.txt'
+    proj = Projector(interface_config_path, common_config_path, homography_file)
     rospy.sleep(1.0)
     proj.run()
 

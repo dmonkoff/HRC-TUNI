@@ -15,8 +15,6 @@ class Pattern:
 
 class Projector:
     def __init__(self, save_file=None):
-        rospack = rospkg.RosPack()
-        self.package_path = rospack.get_path('calibration')
         self.patterns = []
         self.current_pattern_idx = 0
         # configs
@@ -62,11 +60,11 @@ class Projector:
         self.current_pattern_idx = 0
 
     def read_from_configs(self, path):
-        with open(path, 'r') as f:
+        with open(path + 'projector_buttons.yaml', 'r') as f:
             data = yaml.safe_load(f)
         keys = data.keys()
         for i in range(len(keys)):
-            pattern = Pattern(keys[i], data[keys[i]]['img_path'], np.array(data[keys[i]]['loc']))
+            pattern = Pattern(keys[i], path + data[keys[i]]['img_path'], np.array(data[keys[i]]['loc']))
             self.patterns.append(pattern)
         self.current_pattern_idx = 0
         # print(data)
@@ -103,10 +101,10 @@ class Projector:
         for i in range(len(self.patterns)):
             dic2 = {}
             dic2['loc'] = self.patterns[i]._location.tolist()
-            dic2['img_path'] = self.save_file + '/' + self.patterns[i]._identifier + '.png'
+            dic2['img_path'] = self.patterns[i]._identifier + '.png'
             dic[self.patterns[i]._identifier] = dic2
             print("ID, IMG_PATH, LOC: %s, %s, %s" % (self.patterns[i]._identifier, dic2['img_path'], dic2['loc']))
-            cv2.imwrite(dic2['img_path'], self.patterns[i]._texture)
+            cv2.imwrite(self.save_file + '/' + self.patterns[i]._identifier + '.png', self.patterns[i]._texture)
         with open(full_save_path, 'w+') as f:
             yaml.dump(dic, f, default_flow_style=False, allow_unicode=True)
         print("Done!")
@@ -119,6 +117,7 @@ class Projector:
         self.orig_patterns[self.current_pattern_idx] = self.pattern
 
     def plot_image(self):
+        self.update_screen()
         cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty("window", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow("window", self.screen)
@@ -143,21 +142,21 @@ class Projector:
             elif k == 84:
                 #print "down"
                 self.move_pattern(0, 1*self.step_size)
-            elif k == 115:  # s
+            elif k == ord('s'):  # s
                 self.resize_pattern(self.patterns[self.current_pattern_idx]._orig_texture,
                                     int(self.patterns[self.current_pattern_idx]._texture.shape[1] * 0.99),
                                     int(self.patterns[self.current_pattern_idx]._texture.shape[0] * 0.99), False)
-            elif k == 98:  # b
+            elif k == ord('b'):  # b
                 self.resize_pattern(self.patterns[self.current_pattern_idx]._orig_texture,
                                     int(self.patterns[self.current_pattern_idx]._texture.shape[1] * 1.01),
                                     int(self.patterns[self.current_pattern_idx]._texture.shape[0] * 1.01), False)
-            elif k == 114:  # r
+            elif k == ord('r'):  # r
                 self.rotate_pattern(90)
-            elif k == 109:  # m
+            elif k == ord('m'):  # m
                 self.switch_pattern()
-            elif k == 112:  # p
+            elif k == ord('p'):  # p
                 self.save_pattern()
-            elif k == 229:  # ruotsi o
+            elif k == ord('l'):
                 self.save_and_quit()
                 return
             self.update_screen()
@@ -176,7 +175,7 @@ class Projector:
 def main(args):
 
 
-    save_file = '/home/antti/work/catkin_ws/src/unity/unity_msgs/configs/mobile_demo/'
+    save_file = '/home/antti/work/catkin_ws/src/HRC-TUNI/unity_msgs/configs/mobile_demo/'
     cb = Projector(save_file)
     components = \
     [
@@ -189,9 +188,7 @@ def main(args):
         ['DM_NOT_PRESSED', '/home/antti/work/catkin_ws/src/unity/unity_msgs/configs/dead_man_not_pressed.png']
     ]
     # cb.read_components(components)
-    cb.read_from_configs(save_file+'projector_buttons.yaml')
-
-    cb.update_screen()
+    cb.read_from_configs(save_file)
     cb.plot_image()
 
 
