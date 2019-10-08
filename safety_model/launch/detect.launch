@@ -1,0 +1,51 @@
+<!-- roslaunch hololens detect.launch safety_map_scale:=500 cluster_tolerance:=0.005 mi8_cluster_size:=200 viz:=true anomalies_threshold:=220 safety_map_scale:=100 -->
+<!-- roslaunch hololens detect.launch safety_map_scale:=100 cluster_tolerance:=0.005 min_cluster_size:=200 viz:=true anomalies_threshold:=220 method:=1 cloud_diff_threshold:=0.02 -->
+
+
+<!--- FOR STARTING
+roslaunch ur_modern_driver ur5_with_gripper_bringup.launch robot_ip:=192.168.125.100 servoj_time:=0.032 num_grippers:=0
+roslaunch kinect2_bridge kinect2_bridge.launch
+rosrun unity_robot dashboard_client.py
+roslaunch hololens detect.launch safety_map_scale:=100 cluster_tolerance:=0.005 min_cluster_size:=200 viz:=false anomalies_threshold:=20 method:=1 cloud_diff_threshold:=0.02
+roslaunch interaction_markers marker.launch
+rosrun hololens tcp_server_async_v3.py
+-->
+
+
+<launch>
+    <arg name="cloud_diff_threshold" default="0.02"/>
+    <arg name="cluster_tolerance" default="0.006" />
+    <arg name="min_cluster_size" default="250" />
+    <arg name="robot_zone_rad" default="0.01" />
+    <arg name="safety_zone_rad" default="0.0225" />
+    <arg name="safety_map_scale" default="100" />
+    <arg name="method" default="1" />
+    <arg name="viz" default="true" />
+    <arg name="anomalies_threshold" default="10" />
+    <!-- workspace x,y,z min's and max's e.g. [-1.0, -1.0, 0.0, 0.4, 1.0, 1.0]-->
+    <!-- <arg name="workspace_limits" default="[-1.0, -1.0, -0.1, 1.4, 1.01, 1.5]"/> 
+	 <arg name="workspace_limits" default="[-0.5, -1.0, -0.1, 0.4, 0.1, 1.0]"/>-->
+	<!-- <arg name="workspace_limits" default="[0.35, -0.50, -1.68, 1.48, 1.0, 1.0]"/> -->
+    <arg name="workspace_limits" default="[0.35, -0.50, -1.68, 1.48, 0.4, 1.0]"/>
+    <rosparam command="load" file="$(find unity_msgs)/configs/config.yaml"/>
+
+    <!-- kinect to robot tf -->
+    <include file="$(find calibration)/launch/tf_broadcast.launch"/>
+
+    <!-- Work objects -->
+    <!-- <rosparam command="load" file="$(find hololens)/configs/work_objects.yaml" /> -->
+
+    <node name="hololens_detector" pkg="hololens" type="hololens_detector" output="screen">
+
+            <param name="cloud_diff_threshold"     type="double"    value="$(arg cloud_diff_threshold)"/>
+            <param name="method"                   type="double"    value="$(arg method)"/>
+            <param name="cluster_tolerance"        type="double"    value="$(arg cluster_tolerance)"/>
+            <param name="min_cluster_size"         type="double"    value="$(arg min_cluster_size)"/>
+            <!-- <param name="robot_zone_rad"           type="double"    value="$(arg robot_zone_rad)"/> -->
+            <!-- <param name="safety_zone_rad"          type="double"    value="$(arg safety_zone_rad)"/> -->
+            <param name="visualize"                type="bool"      value="$(arg viz)"/>
+            <param name="safety_map_scale"                type="double"      value="$(arg safety_map_scale)"/>
+            <param name="anomalies_threshold"      type="double"    value="$(arg anomalies_threshold)"/>
+            <rosparam param="workspace_limits"     subst_value="True">$(arg workspace_limits)</rosparam>
+	</node>
+</launch>

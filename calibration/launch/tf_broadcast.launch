@@ -1,0 +1,7 @@
+<!-- -->
+<launch>
+    <!-- static_transform_publisher x y z qx qy qz qw frame_id child_frame_id  period_in_ms -->
+    <!-- -0.4204973896128026 1.1275660439367243 0.6590942356049035 -->
+	<!-- prev: -0.0351446146173 -0.261588452123 1.6356419238 0.72309465 -0.69060669  0.00836297  0.01022151 -->
+	<node pkg="tf" type="static_transform_publisher" name="kinect_to_base" args="0.557817 -0.138348 1.34685 -0.70000899 0.71383405 -0.0202421 0.00430167 base kinect2_link 200" />
+</launch>

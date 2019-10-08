@@ -1,0 +1,57 @@
+ Program
+   Robot Program
+     RG2(100)
+     MoveJ
+       Waypoint_1
+     MoveJ
+       Waypoint_10
+     MoveJ
+       Waypoint_3
+     MoveL
+       Waypoint_2
+     Wait: 0.4
+     RG2(20)
+     Wait: 0.7
+     MoveL
+       Waypoint_3
+     MoveJ
+       Waypoint_4
+     MoveJ
+       Waypoint_5
+     MoveL
+       Waypoint_6
+     'MoveJ'
+     RG2(95)
+     Wait: 0.5
+     MoveL
+       Waypoint_5
+     'MoveJ'
+     MoveJ
+       Waypoint_9
+     MoveJ
+       Waypoint_13
+     MoveL
+       Waypoint_11
+     RG2(10)
+     MoveL
+       Waypoint_13
+     MoveJ
+       Waypoint_14
+     'MoveJ'
+     Wait: 8.0
+     Force
+       'Set DO[1]=On'
+       var_4≔999
+       Loop var_4>0.19
+         var_3≔get_actual_tcp_pose()
+         var_4≔var_3[2]
+         Wait: 0.5
+       'Wait var_2<0.19'
+       'Wait: 10.0'
+       'Set DO[1]=Off'
+     MoveL
+       RG2(100)
+       Wait: 4.0
+       'Waypoint_12'
+       Waypoint_7
+       Waypoint_8
