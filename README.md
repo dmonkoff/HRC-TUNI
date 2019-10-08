@@ -54,7 +54,7 @@ For debugging and development download [URSim](https://www.universal-robots.com/
 1. Extract files: ```tar xvf <URSIM_TAR> ```
 2. Run ```./install.sh```
 3. Run inside the extracted URSIM_folder: ```chmod u=rwx,g=rx,o=r ``` 
-4. Switch to java 8: ```sudo update-alternatives --config java```
+4. Install and wwitch to java 8: ```sudo apt install openjdk-8-jdk && sudo update-alternatives --config java```
 5. Start simulator: ```sudo ./start-ursim.sh```
     
     
