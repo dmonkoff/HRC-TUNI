@@ -4,9 +4,16 @@
 ## Description
 This repository contains the code for depth-based model for HRC. The model is based on three zones, human, robot and danger, and their continuous update and safety monitoring. The module is intended to be used together with the projector- or holographic-based user interfaces.
 
+## Test robot-camera calibration
+```bash
+roslaunch kinect2_bridge kinect2_bridge.launch max_depth:=<max depth in meters> publish_tf:=true
+roslaunch calibration tf_broadcast.launch
+# visualize point cloud and robot model in rviz for subjective inspection
+```        
+
 ## Launching the module
 1. Start the robot: ```roslaunch ur_modern_driver ur5_bringup.launch robot_ip:=<real robot 192.168.125.100 or simulated 127.0.0.1>```
-2. Start the camera driver: ```roslaunch kinect2_bridge kinect2_bridge.launch max_depth:=<max depth in meters>```
+2. Start the camera driver: ```roslaunch kinect2_bridge kinect2_bridge.launch max_depth:=<max depth in meters> publish_tf:=true```
 3. Start the safety model: ```roslaunch hololens detect.launch safety_map_scale:=100 cluster_tolerance:=0.005 min_cluster_size:=200 viz:=false cloud_diff_threshold:=0.02```
 
 Sensitivity of the model is defined by the following parameters:
