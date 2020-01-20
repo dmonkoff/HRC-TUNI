@@ -42,8 +42,9 @@ class Pattern():
         return img
 
 class Interface():
-    def __init__(self, h, w):
+    def __init__(self):
         self._components = {}
+
         # self._screen = np.zeros([h, w, 3], dtype=np.uint8)
 
     def read_component(self, id, texture_path, location):
@@ -89,10 +90,10 @@ class Projector():
         self._system_state_sub = rospy.Subscriber("/unity/system_mode", String, self.cb_system_state)
         self._object_manipulation_sub = rospy.Subscriber("/unity/manipulated_object", ManipulatedObject,
                                                    self.cb_object_manipulation)
-
+        self._screen_size = (1080, 1920)
         self._current_joint_values = None
         self._robot_kin = ur5()
-        self._interface = Interface(1080, 1920)
+        self._interface = Interface()
         self._robot_state = 'stationary'
         self._cfg = None
         self._button_info = None
@@ -154,8 +155,8 @@ class Projector():
         return [(np.cos(2 * np.pi / n * x) * r + ox, np.sin(2 * np.pi / n * x) * r + oy) for x in xrange(0, n + 1)]
 
     def generate_hull(self, cs, H, circle_radius, offset):
-        mask = np.zeros((1080, 1920), np.uint8)
-        color_mask = np.zeros((1080, 1920, 3), np.uint8)
+        mask = np.zeros((self._screen_size), np.uint8)
+        color_mask = np.zeros((self._screen_size[0], self._screen_size[1], 3), np.uint8)
         for c in cs:
             points = self.points_in_circum(circle_radius, c[0], c[1], 50)
             cartesian = np.ones((len(points), 3))
@@ -192,7 +193,7 @@ class Projector():
         last_check = 0.0
         robot_state = None
         while not rospy.is_shutdown():
-            interface_img = np.zeros((1080, 1920, 3), np.uint8)
+            interface_img = np.zeros((self._screen_size[0], self._screen_size[1], 3), np.uint8)
 
             ### Generate interface components
             if time.time() - last_check > 0.3:
