@@ -10,8 +10,6 @@ The repository contains the following modules:
 - [a head-mounted AR (Hololens) user interface](https://github.com/Herrandy/HRC-TUNI/tree/master/ar)
 - [a depth-based safety system](https://github.com/Herrandy/HRC-TUNI/tree/master/safety_model)
 
-In addition _unity_msgs_ folder contains the custom ROS message descrptions.
-
 ## Dependencies
 - ROS Melodic
 - OpenCV (2.4.x, using the one from the official Ubuntu repositories is recommended)
