@@ -2,9 +2,7 @@
 import sys
 import cv2
 import numpy as np
-import rospkg
 import yaml
-
 
 class Pattern:
     def __init__(self, indentifier, texture, location=np.array([0, 0])):

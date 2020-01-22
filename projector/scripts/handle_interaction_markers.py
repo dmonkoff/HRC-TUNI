@@ -28,7 +28,6 @@ class Pattern():
         self._location = location
         self._id = id
         self._size = size
-        # self._H, self._W = self._texture.shape[:2]
 
 class MarkerHandler():
     def __init__(self):

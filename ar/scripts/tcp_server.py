@@ -5,8 +5,9 @@ import sys
 import threading
 import time
 import yaml
+import os
 from safety_zone import *
-sys.path.insert(0, '/home/antti/work/utility_functions/ur5_kinematics/')
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../../robot/scripts/')
 from ur5_kinematics import ur5
 
 # ROS related
@@ -178,8 +179,8 @@ class HoloServer:
             obj2_base_frame = np.append(np.dot(ee_frame, obj)[0:2, 3], 0)
             obj_coords = np.array([obj1_base_frame, obj2_base_frame])
             coords = np.append(coords, obj_coords, axis=0)
-	
-	# calculate safety hull as 2D points which are then sent to Hololens
+
+        # calculate safety hull as 2D points which are then sent to Hololens
         zone_boundary, zone_boundary_str = calculate_safety_zone(coords,
                                                                  self._cfg['dynamic_workspace_size'] +
                                                                  self._cfg['safety_area_offset'], False)
