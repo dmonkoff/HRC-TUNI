@@ -63,15 +63,19 @@ This is the reference implementation for the paper:
 
 **_AR-based interaction for human-robot collaborative manufacturing_** _A. Hietanen, R. Pieters, M. Lanz, J. Latokartano, J.-K. Kämäräinen_ 
 
-[PDF](https://arxiv.org/pdf/1803.09956.pdf) | [Video](http://vpg.cs.princeton.edu/)
+[PDF](https://www.sciencedirect.com/science/article/pii/S0736584519307355) | [Video](https://youtu.be/-WW0a-LEGLM)
 
 
 If you find this code useful in your work, please consider citing:
 ```tex
-@article{hietanen2019RCIM,
-  title={AR-based interaction for human-robot collaborative manufacturing},
-  author={Hietanen, Antti and Pieters, Roel and  Lanz, Minna and Latokartano, Jyrki and K{\"a}m{\"a}r{\"a}inen, J.-K},
-  journal={RCIM},
-  note = {to appear},
+@article{hietanen2020ar,
+  title={Ar-based interaction for human-robot collaborative manufacturing},
+  author={Hietanen, Antti and Pieters, Roel and Lanz, Minna and Latokartano, Jyrki and K{\"a}m{\"a}r{\"a}inen, Joni-Kristian},
+  journal={Robotics and Computer-Integrated Manufacturing},
+  volume={63},
+  pages={101891},
+  year={2020},
+  publisher={Elsevier}
 }
+
 ```
