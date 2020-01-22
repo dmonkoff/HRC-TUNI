@@ -11,7 +11,8 @@ To succesfully build the project the following software development kits must be
 - Vuforia Engine v7.5.20
 
 ## Configuration
-An artifical marker is used to extrinsically calibrate Hololens and the robot. The distance of the marker center point to the robot base frame has to be manually measured and changed to the code. The Fig. X shows the default calibration distance   
+An artifical marker is used to extrinsically calibrate Hololens and the robot. The distance of the marker center point to the robot base frame has to be manually measured and changed to the code.
+_work in progress_
 
 ## Running a simple demo
 
