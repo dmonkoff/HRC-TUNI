@@ -10,6 +10,10 @@ To succesfully build the project the following software development kits must be
 - Unity 3D editor 2017.4.1f1
 - Vuforia Engine v7.5.20
 
+## Importing
+1) Create empty Unity project
+2) Open Unity scene: File &#8594; Open Scene &#8594; *<path_to_package>*\HoloRobo\Assets\Scenes\Scene.unity
+
 ## Configuration
 An artifical marker is used to extrinsically calibrate Hololens and the robot. The distance of the marker center point to the robot base frame has to be manually measured and changed to the code.
 _work in progress_
