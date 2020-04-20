@@ -8,7 +8,7 @@ import rospy
 import cv2
 import struct
 from sensor_msgs import point_cloud2
-
+from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 sys.path.append('/home/antti/work/utility_functions/ur5_kinematics/')
 sys.path.append('/home/antti/work/ur_interface/realtime_client/')
@@ -24,7 +24,7 @@ fields = [PointField('x', 0, PointField.FLOAT32, 1),
           ]
 
 class ZonePublisher():
-    def __init__(self, host):
+    def __init__(self, host, rviz_sim):
         self._rviz_pub = rospy.Publisher('/safety_zones', PointCloud2, queue_size=2)
         self._publish_state = 3
         self._mask_shape = (1680, 1920)
@@ -32,7 +32,8 @@ class ZonePublisher():
         self._M[:2, :2] *= 1000 # mm -> m
         self._M[0, 2] = self._mask_shape[0] // 2
         self._M[1, 2] = self._mask_shape[1] // 2
-        self._robot_client = rc.RealTimeClientInterface(host)
+        if not rviz_sim:
+            self._robot_client = rc.RealTimeClientInterface(host)
         self._ur_kinematics = ur5()
 
 
@@ -51,7 +52,8 @@ class ZonePublisher():
                 if self._mask_shape[0] < t[1] or t[0] < 0.0 or self._mask_shape[1] < t[0] or t[1] < 0.0:
                     continue
                 mask[int(t[1]), int(t[0])] = 255
-        im2, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # im2, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # we have points so merge all the contours which are around the points
         merged_contour = []
@@ -74,7 +76,7 @@ class ZonePublisher():
         for point in points:
             r, g, b = color
             rgb = struct.unpack('I', struct.pack('BBBB', b, g, r, 255))[0] # last is alpha
-            pointcloud_pts.append([point[0], point[1], 0.05, rgb])
+            pointcloud_pts.append([point[0], point[1], 0.01, rgb])
 
     def publish_point_clouds(self, robot_zone, critical_zone, danger_zone):
 
@@ -91,12 +93,15 @@ class ZonePublisher():
         self.create_pointcloud2(critical_zone_pts, pointcloud_pts, (255, 0, 0))
 
         pc2 = point_cloud2.create_cloud(header, fields, pointcloud_pts)
-        print("Number of points: ", len(pointcloud_pts))
+        # print("Number of points: ", len(pointcloud_pts))
         self._rviz_pub.publish(pc2)
 
-    def run(self, viz=True):
+    def run(self, viz=True, rviz_sim=False):
         while not rospy.is_shutdown():
-            q = self._robot_client.get_feedback('joint_values')
+            if rviz_sim:
+                q = np.array(rospy.wait_for_message('/joint_states', JointState).position)
+            else:
+                q = self._robot_client.get_feedback('joint_values')
             transformations = self._ur_kinematics.get_transformations(q)
             cp = [c[:3, 3] for c in transformations]
 
@@ -117,9 +122,10 @@ class ZonePublisher():
 
 
 def main():
+    rviz_sim = True
     rospy.init_node('publish_safety_area')
-    zp = ZonePublisher('192.168.125.100')
-    zp.run(viz=False)
+    zp = ZonePublisher('192.168.125.100', rviz_sim)
+    zp.run(viz=False, rviz_sim=rviz_sim)
 
 if __name__ == "__main__":
     main()

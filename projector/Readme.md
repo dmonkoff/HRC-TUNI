@@ -20,7 +20,7 @@ Currently the module contains the following example UI components:
 The module contains example configurations for the UI components (see _unity_msgs_ folder). To succesfully use the module in a real environment the [homography matrix](https://docs.opencv.org/master/d9/dab/tutorial_homography.html) between image plane and the work table must be estimated. An example matrix can be found from _unity_msgs_ folder.
 
 ## Running the module
-1: Start the robot driver: ```roslaunch ur_modern_driver ur5_bringup.launch robot_ip:=<real robot 192.168.125.100 or simulated 127.0.0.1>```
+1: Start the robot driver: ```roslaunch ur_modern_driver ur5_bringup.launch robot_ip:=<robot_ip>```
 
 2: Start the camera driver: ```roslaunch kinect2_bridge kinect2_bridge.launch max_depth:=<max depth in meters>```
 

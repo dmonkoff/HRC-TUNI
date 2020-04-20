@@ -19,7 +19,7 @@ The repository contains the following modules:
 
 ## Required hardware
 In order to replicate the research work the following hardware are required:
-- UR5 from Universal Robot family
+- UR5 from Universal Robot family (tested on CB3 and UR software 3.5.4)
 - Standard 3LCD projector
 - Flat worktable
 - Hololens
@@ -55,7 +55,16 @@ For debugging and development download [URSim](https://www.universal-robots.com/
 4. Install and wwitch to java 8: ```sudo apt install openjdk-8-jdk && sudo update-alternatives --config java```
 5. Start simulator: ```sudo ./start-ursim.sh```
     
-    
+## Simple projector demo
+```
+$ roslaunch ur_modern_driver ur5_bringup.launch robot_ip:=192.168.125.100
+$ roslaunch kinect2_bridge kinect2_bridge.launch max_depth:=2.0 publish_tf:=true
+$ rosrun projector projector_interface.py
+$ rosrun projector handle_interaction_markers.py
+$ rosrun robot dashboard_client.py
+$ roslaunch safety_model detect.launch safety_map_scale:=100 cluster_tolerance:=0.005 min_cluster_size:=200 anomalies_threshold:=20 cloud_diff_threshold:=0.02 viz:=false
+```
+
 ## Citation
 This is the reference implementation for the paper:
 

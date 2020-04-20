@@ -1,9 +1,4 @@
-
-
 #include "ros_detector.hpp"
-
-// #include <pcl/visualization/cloud_viewer.h>
-
 
 ROSDetector::ROSDetector() : nh_priv_("~"),
                              nh_(""),
@@ -62,7 +57,6 @@ void ROSDetector::cb_marker_listener(unity_msgs::MarkerDataArray marker_array_ms
 
     if ( dead_man_button and confirm_button )
     {
-        ROS_INFO_STREAM("HEREEE");
         params_.lookup_initialized = false;
     }
 }

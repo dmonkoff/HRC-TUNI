@@ -19,7 +19,7 @@ rosrun hololens tcp_server_async_v3.py
     <arg name="robot_zone_rad" default="0.01" />
     <arg name="safety_zone_rad" default="0.0225" />
     <arg name="safety_map_scale" default="100" />
-    <arg name="method" default="1" />
+    <!-- <arg name="method" default="1" /> -->
     <arg name="viz" default="true" />
     <arg name="anomalies_threshold" default="10" />
     <!-- workspace x,y,z min's and max's e.g. [-1.0, -1.0, 0.0, 0.4, 1.0, 1.0]-->
@@ -38,7 +38,7 @@ rosrun hololens tcp_server_async_v3.py
     <node name="safety_model_detector" pkg="safety_model" type="safety_model_detector" output="screen">
 
             <param name="cloud_diff_threshold"     type="double"    value="$(arg cloud_diff_threshold)"/>
-            <param name="method"                   type="double"    value="$(arg method)"/>
+            <!-- <param name="method"                   type="double"    value="$(arg method)"/> -->
             <param name="cluster_tolerance"        type="double"    value="$(arg cluster_tolerance)"/>
             <param name="min_cluster_size"         type="double"    value="$(arg min_cluster_size)"/>
             <!-- <param name="robot_zone_rad"           type="double"    value="$(arg robot_zone_rad)"/> -->
