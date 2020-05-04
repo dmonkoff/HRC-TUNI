@@ -1,27 +1,18 @@
 // ROS
 #include <calibration/utils.h>
-
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <ros/package.h>
-#include <sensor_msgs/PointCloud.h>
 #include <tf/transform_listener.h>
-#include <pcl_ros/point_cloud.h>
 #include <tf/transform_broadcaster.h>
 #include <opencv2/core/eigen.hpp>
+#include <sensor_msgs/PointCloud.h>
+#include <pcl_ros/point_cloud.h>
 
 // PCL
 #include <pcl/registration/transformation_estimation_dual_quaternion.h>
 #include <pcl/registration/transformation_estimation_svd.h>
 #include <pcl/visualization/pcl_visualizer.h>
-
-// Owm
-// #include <toolbox/cloudToolbox.hh>
-// #include <toolbox/helperFunctions.h>
-// #include <helperFunctions.hpp>
-// #include <pcl_utils.hpp>
-// #include <ros_utils.hpp>
-// #include <toolbox/estimate_tf.hpp>
 #include <pcl/filters/filter.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/features/normal_3d_omp.h>
@@ -33,13 +24,6 @@ typedef pcl::Normal PointN;
 typedef pcl::PointCloud<PointN> NCloud;
 typedef pcl::PointCloud<PointP> PCloud;
 
-
-/*
- * Remember to set the tool offset
- * Check that tool0_controller is in the center of the endeffector
- * Start pose: -0.0019143263446252945, -1.8660934607135218, -1.2928875128375452, -2.857654396687643, -0.003704849873678029, -0.2666247526751917
- */
-
 void euclideanClustering(PCloud::Ptr cloud, std::vector<pcl::PointIndices> * inliers,
                          float clusterTorelance = 0.03, unsigned int minClustSize = 40,
                          unsigned int maxClustSize = (std::numeric_limits<int>::max)() )
@@ -50,26 +34,17 @@ void euclideanClustering(PCloud::Ptr cloud, std::vector<pcl::PointIndices> * inl
     ec.setMaxClusterSize (maxClustSize);
     ec.setInputCloud (cloud);
     ec.extract(*inliers);
-    cout << "Number of clusters: " << inliers->size() << endl;
 }
 
 void computeNormals(PCloud::Ptr cloud, NCloud::Ptr cloud_normals, const float nrad = 0.01, bool radiusSearch = true )
 {
-    cout << "---Normal estimation---" << endl;
     pcl::NormalEstimationOMP<PointP, PointN> ne;
     ne.setViewPoint(0,0,0);
     ne.setInputCloud(cloud);
     if ( radiusSearch)
-    {
-        cout << "Using radius search." << endl;
         ne.setRadiusSearch(nrad);
-    }
     else
-    {
-        cout << "Using k-means search." << endl;
         ne.setKSearch(nrad);
-    }
-
     ne.compute(*cloud_normals);
 }
 
@@ -78,7 +53,6 @@ Eigen::Matrix4f estimateTransformation(PCloud sensor, PCloud robot) {
     /*
      * Calculates the transformation to map sensor points to robot frame
      */
-
 
     Eigen::Matrix4f trans;
     Eigen::Matrix4f trans_inverse;
@@ -94,7 +68,8 @@ Eigen::Matrix4f estimateTransformation(PCloud sensor, PCloud robot) {
     float mse_error = 0.0f;
     for (size_t t = 0; t < transformed_p.size(); ++t)
         mse_error += (transformed_p.at(t).getVector3fMap() - robot.at(t).getVector3fMap()).squaredNorm();
-    std::cout << "MSE error: " << mse_error << std::endl;
+    mse_error = mse_error / transformed_p.size();
+    cout << "MSE error: " << mse_error << endl;
     return trans;
 }
 
@@ -131,18 +106,26 @@ public:
         centroidsXYZ_.reset(new PCloud);
         robotXYZ_.reset(new PCloud);
         tf_listener_ = new tf2_ros::TransformListener(buffer_);
-        tool_offset_(0, 3) = 0.00373779;
-        tool_offset_(1, 3) = 0.0217116;
-        tool_offset_(2, 3) = 0.0671781;
+        this->init_node();
         save_path_ += "/data/";
-
-        cout << "Tool offset matrix:" << endl;
+        ROS_INFO_STREAM("Tool offset matrix: ");
         cout << tool_offset_ << endl;
         ROS_INFO_STREAM("Save path: " << save_path_);
+        ROS_INFO_STREAM("Base frame: " << base_frame_name_);
+        ROS_INFO_STREAM("Tool0 frame: " << tool0_frame_name_);
     }
-
     ~KinectCalib() {}
 
+    void init_node()
+    {
+        std::vector<double> tool0_off_temp = {0.00373779, 0.0217116, 0.0671781};
+        nh_.param<std::string>("/calibration_kinect2robot/base_frame", base_frame_name_, "base");
+        nh_.param<std::string>("/calibration_kinect2robot/tool0_frame", tool0_frame_name_, "tool0");
+        nh_.getParam("/calibration_kinect2robot/tool0_offset", tool0_off_temp);
+        tool_offset_(0, 3) = tool0_off_temp[0];
+        tool_offset_(1, 3) = tool0_off_temp[1];
+        tool_offset_(2, 3) = tool0_off_temp[2];
+    }
 
     void cbSensor(const PCloud::ConstPtr& msg) {
         currentCLoudView_ = msg->makeShared();
@@ -163,7 +146,6 @@ public:
         }
 
         PCloud::Ptr output(new PCloud);
-        /// every cloud has the same size
         for ( size_t t = 0; t < clouds[0]->size(); ++t ) {
             Eigen::Vector3f xyz;
             Eigen::Vector3i rgb;
@@ -191,20 +173,13 @@ public:
 
 
     PointP locateObject(){
-
-
         PCloud::Ptr cloudPtr( new PCloud);
         PCloud::Ptr coloredPart( new PCloud);
         cloudPtr = getAverageCloud();
 
-        cout << "Got average cloud!" << endl;
         visualizeCloud(cloudPtr, "average");
         std::vector<int> dummy;
-        cout << "1" << endl;
         pcl::removeNaNFromPointCloud(*cloudPtr,*cloudPtr,dummy);
-        cout << "2" << endl;
-        // pcl_utils::removeNearPoints<PointP>(cloudPtr, 0.30);
-        cout << "3" << endl;
         PointP * p(new PointP);
         Eigen::Vector3f lab;
         for (size_t i = 0; i < cloudPtr->size(); ++i)
@@ -213,7 +188,6 @@ public:
             p->y = cloudPtr->at(i).y;
             p->z = cloudPtr->at(i).z;
             p->rgb = cloudPtr->at(i).rgb;
-            //cout << p.x << " " << p.y << " " << p.z << endl;
             lab = RGB2Lab(p->getRGBVector3i());
 
             int L = lab[0];
@@ -224,14 +198,12 @@ public:
             // for red a > 20
             if ( a > 5 )
             {
-                //cout << "Found green" << endl;
                 cloudPtr->at(i).r = 255;
                 cloudPtr->at(i).g = 0;
                 cloudPtr->at(i).b = 0;
                 coloredPart->push_back(*p);
             }
         }
-        cout << "Number of points in colored cloud: " << coloredPart->size() << endl;
         visualizeCloud(coloredPart, "colored");
 
         // discard small clusters
@@ -252,14 +224,8 @@ public:
         double minVariance = std::numeric_limits<double>::max();
         size_t objectID;
         for (unsigned int i = 0; i < clusterIdx.size(); ++i) {
-            //pcl::io::savePCDFileASCII("/home/antti/Desktop/joujou.pcd",*cloud_normals);
             pcl::copyPointCloud<PointP>(*coloredPart, clusterIdx.at(i), *cluster);
-            cout << "Cluster number: " << i << endl;
-            //v->spinUntilClosed(cluster,"1");
-            //pcl::io::savePCDFileASCII("/home/antti/Desktop/joujou.pcd",*coloredPart);
             pcl::copyPointCloud(*cloud_normals, clusterIdx.at(i), *clusterNormals);
-            //pcl::io::savePCDFileASCII("/home/antti/Desktop/joujou.pcd",*clusterNormals);
-            //cout << clusterNormals->size() << endl;
 
             std::vector<double> x;
             std::vector<double> y;
@@ -273,33 +239,26 @@ public:
             }
             sd.SetValues(x);
             double xx = sd.CalculateVariane();
-            cout << "xx " << xx << endl;
 
             sd.SetValues(y);
             double yy = sd.CalculateVariane();
-            cout << "yy " << yy << endl;
 
             sd.SetValues(z);
             double zz = sd.CalculateVariane();
-            cout << "zz " << zz << endl;
             if ( minVariance > (xx+yy+zz)) {
                 minVariance = xx+yy+zz;
                 objectID = i;
             }
-            cout << "Cluster size: " << cluster->size() << endl;
+
             std::stringstream ss;
             std::stringstream ss2;
             ss << (i + 1) * 10;
             ss2 << (i + 1) * 10 + 1;
             std::string str = ss.str();
             std::string str2 = ss2.str();
-            //v->spinUntilClosedWithNormals(cluster, clusterNormals, str, str2);
         }
-        cout << "Object ID:" << objectID << endl;
         PCloud::Ptr object( new PCloud);
         pcl::copyPointCloud(*coloredPart, clusterIdx.at(objectID), *object);
-        //v->spinUntilClosed(object,"Selected object");
-
 
         PointP point = PointP(0, 0, 255);
         Eigen::Vector4f centroid;
@@ -308,7 +267,11 @@ public:
         point.x =centroid(0);
         point.y =centroid(1);
         point.z =centroid(2);
-        // centroidsXYZ_->push_back(point);
+        point.r = 0;
+        point.g = 0;
+        point.b = 255;
+        object->push_back(point);
+        visualizeCloud(object, "results");
         return point;
     }
     void printInfo()
@@ -321,18 +284,17 @@ public:
     void popOne()
     {
         centroidsXYZ_->erase(centroidsXYZ_->end());
-
+        robotXYZ_->erase(robotXYZ_->end());
     }
-
 
     Eigen::Matrix4f getRobotTCP()
     {
         Eigen::Matrix4f link_locations;
-        get_tf("base", "tool0_controller", link_locations, &buffer_, ros::Time(0));
-        Eigen::Matrix4f tcpPose= link_locations * tool_offset_;
+        // get_tf("base", "tool0_controller", link_locations, &buffer_, ros::Time(0));
+        get_tf(base_frame_name_, tool0_frame_name_, link_locations, &buffer_, ros::Time(0));
+        Eigen::Matrix4f tcpPose = link_locations * tool_offset_;
         return tcpPose;
     }
-
 
     void findMarker()
     {
@@ -355,40 +317,24 @@ public:
         }
         sensor2robot_tf_ = estimateTransformation(*centroidsXYZ_, *robotXYZ_);
         saveEigenMatrix(save_path_ + "kinect2base_tf.txt", sensor2robot_tf_);
-    }
 
-
-    void testTransformation() {
-
-        Eigen::Matrix4f Tm;
-        loadEigenMatrix(save_path_ + "kinect2base_tf.txt", Tm);
-        tf::Vector3 origin;
-        origin.setValue(static_cast<double>(Tm(0,3)),static_cast<double>(Tm(1,3)),static_cast<double>(Tm(2,3)));
-        tf::Matrix3x3 tf3d;
-        tf3d.setValue(static_cast<double>(Tm(0,0)), static_cast<double>(Tm(0,1)), static_cast<double>(Tm(0,2)),
-                      static_cast<double>(Tm(1,0)), static_cast<double>(Tm(1,1)), static_cast<double>(Tm(1,2)),
-                      static_cast<double>(Tm(2,0)), static_cast<double>(Tm(2,1)), static_cast<double>(Tm(2,2)));
-
-        tf::Quaternion tfqt;
-        tf3d.getRotation(tfqt);
-
-        tf::Transform transform;
-        transform.setOrigin(origin);
-        transform.setRotation(tfqt);
-        static tf::TransformBroadcaster br;
-        while (ros::ok())
-            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base", "kinect2_link"));
-    }
-
+        Eigen::Matrix3f R;
+        R << static_cast<double>(sensor2robot_tf_(0,0)), static_cast<double>(sensor2robot_tf_(0,1)), static_cast<double>(sensor2robot_tf_(0,2)),
+             static_cast<double>(sensor2robot_tf_(1,0)), static_cast<double>(sensor2robot_tf_(1,1)), static_cast<double>(sensor2robot_tf_(1,2)),
+             static_cast<double>(sensor2robot_tf_(2,0)), static_cast<double>(sensor2robot_tf_(2,1)), static_cast<double>(sensor2robot_tf_(2,2));
+        Eigen::Quaternionf q(R);
+        cout << "Rotation [x y z w]: " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
+        cout << "Translation [x y z]: " << sensor2robot_tf_(0,3) << " " << sensor2robot_tf_(1,3) << " " << sensor2robot_tf_(2,3) <<  endl;
+     }
 
 private:
     ros::NodeHandle nh_;
     ros::Subscriber subColor_;
     ros::Subscriber subCloud_;
-    ros::ServiceClient serMoveArm_;
 
-    cv::Mat currentRGB_;
     int counter_;
+    string base_frame_name_;
+    string tool0_frame_name_;
     pcl::PointCloud<PointP>::Ptr currentCLoudView_;
     pcl::PointCloud<PointP>::Ptr centroidsXYZ_;
     pcl::PointCloud<PointP>::Ptr robotXYZ_;
@@ -400,53 +346,41 @@ private:
 
     tf2_ros::Buffer buffer_;
     tf2_ros::TransformListener* tf_listener_;
-
 };
-
-
 
 
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "kinect_to_robotarm_node");
-    ros::NodeHandle node_priv("~");
     ROS_INFO("Started kinect_to_robotarm_node");
     KinectCalib cal;
     ros::Rate r(10);
     int keyboardEvent = -1;
     while (ros::ok())
     {
-
-        // cout << "keyboard pressed: " << getch() << endl;
         keyboardEvent = getch();
         if ( keyboardEvent == 'c')
         {
-            cout << "Finding marker" << endl;
+            cout << " pressed, finding marker!" << endl;
             cal.findMarker();
         }
         if ( keyboardEvent == 's')
         {
-            cout << " pressed, saving points" << endl;
+            cout << " pressed, calculating transformation!" << endl;
             cal.calculateTransformation();
         }
         if ( keyboardEvent == 'i')
         {
-            cout << " pressed, printing point informations" << endl;
+            cout << " pressed, printing info!" << endl;
             cal.printInfo();
-        }
-        if ( keyboardEvent == 't')
-        {
-            cout << " pressed, testing transformation" << endl;
-            cal.testTransformation();
         }
         if ( keyboardEvent == 'd')
         {
-            cout << " pressed, deleting last added point" << endl;
+            cout << " pressed, deleting last added point!" << endl;
             cal.popOne();
         }
-
-        ros::spinOnce();// Handle ROS events
+        ros::spinOnce();
         r.sleep();
     }
 

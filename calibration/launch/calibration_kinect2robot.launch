@@ -1,0 +1,11 @@
+<!-- Kinect to robot calibration -->
+<launch>
+    <arg name="base_frame" default="base"/>
+    <arg name="tool0_frame" default="tool0" />
+    <arg name="tool0_offset" default="[0.00373779, 0.0217116, 0.0671781]"/>
+    <node name="calibration_kinect2robot" pkg="calibration" type="calibration_kinect2robot" output="screen">
+            <param name="base_frame"     type="str" value="$(arg base_frame)"/>
+            <param name="tool0_frame"    type="str" value="$(arg tool0_frame)"/>
+            <rosparam param="tool0_offset"     subst_value="True">$(arg tool0_offset)</rosparam>
+    </node>
+</launch>
