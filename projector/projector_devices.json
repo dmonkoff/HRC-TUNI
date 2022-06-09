@@ -1,0 +1,34 @@
+{
+	"projectors": [
+	{
+		"id":0,
+		"homDirect": "homographies/H_left.npy",
+		"homFromVert": "homographies/H_left_vert.npy",
+		"homTable": "homographies/proj_botTable_hom.npy",
+		"homTableVert": "homographies/fromVert_to_projBotTable_hom.npy",
+		"shiftX": 3840,
+		"shiftY": 0
+	},
+	{
+		"id":1,
+		"homDirect": "homographies/H_right.npy",
+		"homFromVert": "homographies/H_right_vert.npy",
+		"homTable": "homographies/proj_topTable_hom.npy",
+		"homTableVert": "homographies/fromVert_to_projTopTable_hom.npy",
+		"shiftX": 1920,
+		"shiftY": 0
+	}
+	],
+	"cameras": [
+	{
+		"id":0,
+		"mainCam": 1,
+		"vertHomGround": "homographies/H_hor.npy",
+		"vertHomGroundInv": "homographies/H_hor_inv.npy",
+		"vertTable": "homographies/vert_view_table_hom.npy",
+		"vertTableInv": "homographies/vert_view_table_inv_hom.npy",
+		"camRobHom": "homographies/robcamhom_01_06.npy"
+
+	}
+	]
+}
